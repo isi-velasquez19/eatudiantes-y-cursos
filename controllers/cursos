@@ -1,0 +1,35 @@
+from flask import Blueprint, render_template, request, redirect, url_for
+from models.cursos import Curso
+from models.estudiantes import Estudiante
+
+bp = Blueprint("cursos", __name__)
+
+
+@bp.route("/")
+@bp.route("/cursos")
+def index():
+    cursos = Curso.obtener_todos()
+    if cursos is False:
+        cursos = []
+    return render_template("cursos.html", cursos=cursos)
+
+
+@bp.route("/cursos/crear", methods=["POST"])
+def crear_curso():
+    nombre = request.form.get("nombre", "").strip()
+    if nombre:
+        Curso.crear(nombre)
+    return redirect(url_for("cursos.index"))
+
+
+@bp.route("/cursos/<int:curso_id>")
+def mostrar_curso(curso_id):
+    curso = Curso.obtener_por_id(curso_id)
+    if not curso:
+        return "Curso no encontrado", 404
+    estudiantes = Estudiante.obtener_por_curso(curso_id)
+    if estudiantes is False:
+        estudiantes = []
+    return render_template(
+        "mostrar_curso.html", curso=curso, estudiantes=estudiantes
+    )

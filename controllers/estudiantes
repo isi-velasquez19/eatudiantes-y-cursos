@@ -1,0 +1,63 @@
+from flask import Blueprint, render_template, request, redirect, url_for
+from models.cursos import Curso
+from models.estudiantes import Estudiante
+
+bp = Blueprint("estudiantes", __name__)
+
+
+@bp.route("/estudiantes/nuevo")
+def nuevo_estudiante():
+    cursos = Curso.obtener_todos()
+
+    if cursos is False:
+        cursos = []
+
+    return render_template(
+        "nuevo_estudiantes.html",
+        cursos=cursos,
+        error=None
+    )
+
+
+@bp.route("/estudiantes/crear", methods=["POST"])
+def crear_estudiante():
+    nombre = request.form.get("nombre", "").strip()
+    apellido = request.form.get("apellido", "").strip()
+    edad_texto = request.form.get("edad", "").strip()
+    curso_texto = request.form.get("curso_id", "").strip()
+
+    cursos = Curso.obtener_todos()
+
+    if cursos is False:
+        cursos = []
+
+    try:
+        edad = int(edad_texto)
+        curso_id = int(curso_texto)
+
+        cursos_ids = [curso["id"] for curso in cursos]
+
+        if (
+            not nombre
+            or not apellido
+            or edad < 0
+            or curso_id not in cursos_ids
+        ):
+            raise ValueError
+
+    except (ValueError, TypeError):
+        return render_template(
+            "nuevo_estudiantes.html",
+            cursos=cursos,
+            error="Completa todos los campos correctamente."
+        ), 400
+    
+
+    if resultado is False:
+        return render_template(
+            "nuevo_estudiantes.html",
+            cursos=cursos,
+            error="No se pudo guardar el estudiante."
+        ), 500
+
+    return redirect(url_for("cursos.index"))

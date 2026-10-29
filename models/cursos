@@ -1,0 +1,23 @@
+from mysqlconnection import MySQLConnection
+
+DB = "estudiantes_cursos"
+
+
+class Curso:
+
+    @staticmethod
+    def obtener_todos():
+        db = MySQLConnection(DB)
+        return db.query_db("SELECT id, nombre FROM cursos ORDER BY id")
+
+    @staticmethod
+    def obtener_por_id(curso_id):
+        db = MySQLConnection(DB)
+        resultado = db.query_db(
+        "SELECT id, nombre FROM cursos WHERE id = %s",(curso_id,))
+        return resultado[0] if resultado else None
+
+    @staticmethod
+    def crear(nombre):
+        db = MySQLConnection(DB)
+        return db.query_db("INSERT INTO cursos (nombre, created_at, updated_at) ""VALUES (%s, NOW(), NOW())",(nombre,))
